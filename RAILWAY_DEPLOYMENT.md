@@ -38,6 +38,7 @@ PORT=5000
 ### **Step 4: Deploy and Wait**
 
 1. Railway will automatically:
+
    - Install dependencies
    - Build your React app
    - Start your Node.js server
@@ -55,6 +56,7 @@ PORT=5000
 ## 🌐 How It Works
 
 ### **Production Build Process:**
+
 1. **Build Frontend**: `npm run build` creates `dist/` folder
 2. **Start Server**: `npm run server` starts Express server
 3. **Serve Static Files**: Server serves React build from `dist/`
@@ -62,6 +64,7 @@ PORT=5000
 5. **React Routing**: All other routes serve `index.html` for SPA
 
 ### **File Structure in Production:**
+
 ```
 your-project/
 ├── dist/           # Built React app
@@ -73,12 +76,14 @@ your-project/
 ## 🔍 Testing Your Deployment
 
 ### **Frontend Routes:**
+
 - `https://your-domain.railway.app/` - Home page
 - `https://your-domain.railway.app/about` - About page
 - `https://your-domain.railway.app/contact` - Contact page
 - `https://your-domain.railway.app/admin` - Admin login
 
 ### **Backend API:**
+
 - `https://your-domain.railway.app/api/health` - Health check
 - `https://your-domain.railway.app/api/contact` - Contact form
 - `https://your-domain.railway.app/api/admin/login` - Admin login
@@ -88,11 +93,13 @@ your-project/
 ### **Common Issues:**
 
 1. **Build Fails:**
+
    - Check Railway logs for errors
    - Ensure all dependencies are in `package.json`
    - Verify Node.js version compatibility
 
 2. **MongoDB Connection Error:**
+
    - Check `MONGODB_URI` environment variable
    - Ensure MongoDB Atlas allows connections from Railway IPs
    - Verify database credentials
@@ -103,6 +110,7 @@ your-project/
    - Check Railway deployment logs
 
 ### **Useful Commands:**
+
 ```bash
 # View Railway logs
 railway logs
@@ -123,6 +131,7 @@ railway status
 ## 🔄 Automatic Deployments
 
 Railway automatically redeploys when you:
+
 1. Push to your GitHub `main` branch
 2. Update environment variables
 3. Modify `railway.json` configuration
@@ -139,6 +148,7 @@ Railway automatically redeploys when you:
 ## 🎉 You're All Set!
 
 Once deployed, your portfolio will have:
+
 - **Beautiful frontend** served from Railway's CDN
 - **Full MongoDB backend** for contact forms and admin
 - **Automatic deployments** on every GitHub push

@@ -22,7 +22,9 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://millikifleyesus:UDJRZCy8oZEnl20h@web.pdksjp4.mongodb.net/portfolio";
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  "mongodb+srv://millikifleyesus:UDJRZCy8oZEnl20h@web.pdksjp4.mongodb.net/portfolio";
 
 mongoose
   .connect(MONGODB_URI)
@@ -56,13 +58,18 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ message: "Access token required" });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || "your-super-secret-jwt-key-change-this-in-production", (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid or expired token" });
+  jwt.verify(
+    token,
+    process.env.JWT_SECRET ||
+      "your-super-secret-jwt-key-change-this-in-production",
+    (err, user) => {
+      if (err) {
+        return res.status(403).json({ message: "Invalid or expired token" });
+      }
+      req.user = user;
+      next();
     }
-    req.user = user;
-    next();
-  });
+  );
 };
 
 // API Routes
@@ -96,7 +103,9 @@ app.post("/api/admin/login", async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ message: "Username and password required" });
+      return res
+        .status(400)
+        .json({ message: "Username and password required" });
     }
 
     const admin = await Admin.findOne({ username });
@@ -111,7 +120,8 @@ app.post("/api/admin/login", async (req, res) => {
 
     const token = jwt.sign(
       { username: admin.username, id: admin._id },
-      process.env.JWT_SECRET || "your-super-secret-jwt-key-change-this-in-production",
+      process.env.JWT_SECRET ||
+        "your-super-secret-jwt-key-change-this-in-production",
       { expiresIn: "24h" }
     );
 
@@ -134,25 +144,29 @@ app.get("/api/admin/messages", authenticateToken, async (req, res) => {
 });
 
 // 5. Mark Message as Read (Protected)
-app.patch("/api/admin/messages/:id/read", authenticateToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const message = await Contact.findByIdAndUpdate(
-      id,
-      { read: true },
-      { new: true }
-    );
+app.patch(
+  "/api/admin/messages/:id/read",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const message = await Contact.findByIdAndUpdate(
+        id,
+        { read: true },
+        { new: true }
+      );
 
-    if (!message) {
-      return res.status(404).json({ message: "Message not found" });
+      if (!message) {
+        return res.status(404).json({ message: "Message not found" });
+      }
+
+      res.json({ message: "Message marked as read" });
+    } catch (error) {
+      console.error("Mark as read error:", error);
+      res.status(500).json({ message: "Failed to mark message as read" });
     }
-
-    res.json({ message: "Message marked as read" });
-  } catch (error) {
-    console.error("Mark as read error:", error);
-    res.status(500).json({ message: "Failed to mark message as read" });
   }
-});
+);
 
 // 6. Delete Message (Protected)
 app.delete("/api/admin/messages/:id", authenticateToken, async (req, res) => {
@@ -176,17 +190,17 @@ app.get("/api/admin/stats", authenticateToken, async (req, res) => {
   try {
     const totalMessages = await Contact.countDocuments();
     const unreadMessages = await Contact.countDocuments({ read: false });
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayMessages = await Contact.countDocuments({
-      createdAt: { $gte: today }
+      createdAt: { $gte: today },
     });
 
     res.json({
       totalMessages,
       unreadMessages,
-      todayMessages
+      todayMessages,
     });
   } catch (error) {
     console.error("Get stats error:", error);
