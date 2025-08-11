@@ -33,7 +33,7 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Check if we're in production mode FIRST
+    // Check if we're in production mode FIRST - be more aggressive
     const isVercel = window.location.hostname.includes("vercel.app");
     const productionMode = isVercel || !import.meta.env.DEV;
     setIsProductionMode(productionMode);
@@ -43,8 +43,19 @@ const AdminDashboard = () => {
       hostname: window.location.hostname,
       isVercel,
       importMetaEnvDev: import.meta.env.DEV,
-      productionMode
+      productionMode,
+      currentTime: new Date().toISOString()
     });
+
+    // ALWAYS load from localStorage if on Vercel, regardless of other conditions
+    if (isVercel) {
+      console.log("🚀 Vercel detected - forcing localStorage mode");
+      const storedMessages = localStorage.getItem("contactMessages") || "[]";
+      const messages = JSON.parse(storedMessages);
+      setMessages(messages);
+      console.log("📨 Loaded messages from localStorage:", messages.length);
+      return;
+    }
 
     // Only load messages and stats AFTER production mode is set
     if (productionMode) {
@@ -52,8 +63,10 @@ const AdminDashboard = () => {
       const storedMessages = localStorage.getItem("contactMessages") || "[]";
       const messages = JSON.parse(storedMessages);
       setMessages(messages);
+      console.log("📨 Production mode - loaded from localStorage:", messages.length);
     } else {
       // Development mode: use real backend
+      console.log("🔧 Development mode - using real backend");
       loadMessages();
       loadStats();
     }

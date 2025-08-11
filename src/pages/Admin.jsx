@@ -22,7 +22,7 @@ const Admin = () => {
       navigate("/admin/dashboard");
       return;
     }
-    
+
     // Check if we're in production mode (Vercel deployment)
     const isVercel = window.location.hostname.includes("vercel.app");
     const productionMode = isVercel || !import.meta.env.DEV;

@@ -1,5 +1,6 @@
 // API Base URL - will use Vercel serverless functions in production
-const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:5000' : '';
+const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+const API_BASE_URL = (import.meta.env.DEV && !isVercel) ? 'http://localhost:5000' : '';
 
 // Helper function for API calls
 const apiCall = async (endpoint, options = {}) => {
@@ -73,6 +74,11 @@ export const adminLogin = async (credentials) => {
 
 // Get Messages API
 export const getMessages = async (token) => {
+  // If on Vercel, don't make API calls - use localStorage instead
+  if (isVercel) {
+    throw new Error('Backend services are not available. Using localStorage fallback.');
+  }
+  
   if (!API_BASE_URL) {
     // Production: use Vercel serverless function
     return apiCall("/admin-messages", {
@@ -92,6 +98,11 @@ export const getMessages = async (token) => {
 
 // Mark Message as Read API
 export const markMessageAsRead = async (id, token) => {
+  // If on Vercel, don't make API calls - use localStorage instead
+  if (isVercel) {
+    throw new Error('Backend services are not available. Using localStorage fallback.');
+  }
+  
   if (!API_BASE_URL) {
     // Production: use Vercel serverless function
     return apiCall(`/admin-messages?id=${id}`, {
@@ -113,6 +124,11 @@ export const markMessageAsRead = async (id, token) => {
 
 // Delete Message API
 export const deleteMessage = async (id, token) => {
+  // If on Vercel, don't make API calls - use localStorage instead
+  if (isVercel) {
+    throw new Error('Backend services are not available. Using localStorage fallback.');
+  }
+  
   if (!API_BASE_URL) {
     // Production: use Vercel serverless function
     return apiCall(`/admin-messages?id=${id}`, {
@@ -134,6 +150,11 @@ export const deleteMessage = async (id, token) => {
 
 // Get Dashboard Stats API
 export const getDashboardStats = async (token) => {
+  // If on Vercel, don't make API calls - use localStorage instead
+  if (isVercel) {
+    throw new Error('Backend services are not available. Using localStorage fallback.');
+  }
+  
   if (!API_BASE_URL) {
     // Production: use Vercel serverless function
     return apiCall("/admin-stats", {
