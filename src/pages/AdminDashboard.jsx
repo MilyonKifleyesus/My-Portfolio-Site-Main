@@ -33,13 +33,30 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Check if we're in production mode
-    const isVercel = window.location.hostname.includes('vercel.app');
-    setIsProductionMode(isVercel || !import.meta.env.DEV);
+    // Check if we're in production mode FIRST
+    const isVercel = window.location.hostname.includes("vercel.app");
+    const productionMode = isVercel || !import.meta.env.DEV;
+    setIsProductionMode(productionMode);
+    
+    // Debug logging
+    console.log("🔍 Production Mode Detection:", {
+      hostname: window.location.hostname,
+      isVercel,
+      importMetaEnvDev: import.meta.env.DEV,
+      productionMode
+    });
 
-    // Load messages and stats
-    loadMessages();
-    loadStats();
+    // Only load messages and stats AFTER production mode is set
+    if (productionMode) {
+      // Production mode: load from localStorage immediately
+      const storedMessages = localStorage.getItem("contactMessages") || "[]";
+      const messages = JSON.parse(storedMessages);
+      setMessages(messages);
+    } else {
+      // Development mode: use real backend
+      loadMessages();
+      loadStats();
+    }
   }, [navigate]);
 
   const loadMessages = async () => {

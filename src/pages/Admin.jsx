@@ -20,10 +20,13 @@ const Admin = () => {
     const token = localStorage.getItem("adminToken");
     if (token) {
       navigate("/admin/dashboard");
+      return;
     }
+    
     // Check if we're in production mode (Vercel deployment)
-    const isVercel = window.location.hostname.includes('vercel.app');
-    setIsProductionMode(isVercel || !import.meta.env.DEV);
+    const isVercel = window.location.hostname.includes("vercel.app");
+    const productionMode = isVercel || !import.meta.env.DEV;
+    setIsProductionMode(productionMode);
   }, [navigate]);
 
   const handleSubmit = async (e) => {
