@@ -1,16 +1,8 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Lock, Eye, EyeOff, User, Shield } from "lucide-react";
-import Silk from "../components/Silk";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Lock, User, AlertCircle } from "lucide-react";
 import { adminLogin } from "../services/api";
-
-const glassStyle = {
-  backdropFilter: "blur(16px)",
-  WebkitBackdropFilter: "blur(16px)",
-  border: "1px solid rgba(255, 255, 255, 0.1)",
-  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.05)",
-};
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -21,6 +13,7 @@ const Admin = () => {
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProductionMode, setIsProductionMode] = useState(false);
 
   // Check if admin is already logged in
   useEffect(() => {
@@ -28,6 +21,9 @@ const Admin = () => {
     if (token) {
       navigate("/admin/dashboard");
     }
+    
+    // Check if we're in production mode (no backend)
+    setIsProductionMode(!import.meta.env.DEV);
   }, [navigate]);
 
   const handleSubmit = async (e) => {
@@ -36,14 +32,35 @@ const Admin = () => {
     setIsSubmitting(true);
 
     try {
-      // Login logic only
-      const response = await adminLogin({
-        username: formData.username,
-        password: formData.password,
-      });
+      if (isProductionMode) {
+        // Production mode: use localStorage fallback
+        const storedAdmin = localStorage.getItem('adminCredentials');
+        if (storedAdmin) {
+          const { username, password } = JSON.parse(storedAdmin);
+          if (formData.username === username && formData.password === password) {
+            localStorage.setItem("adminToken", "production-token");
+            navigate("/admin/dashboard");
+            return;
+          }
+        }
+        // First time setup in production
+        if (formData.username === "admin" && formData.password === "admin123") {
+          localStorage.setItem('adminCredentials', JSON.stringify(formData));
+          localStorage.setItem("adminToken", "production-token");
+          navigate("/admin/dashboard");
+          return;
+        }
+        throw new Error("Invalid credentials");
+      } else {
+        // Development mode: use real backend
+        const response = await adminLogin({
+          username: formData.username,
+          password: formData.password,
+        });
 
-      localStorage.setItem("adminToken", response.token);
-      navigate("/admin/dashboard");
+        localStorage.setItem("adminToken", response.token);
+        navigate("/admin/dashboard");
+      }
     } catch (error) {
       setError(error.message || "Invalid credentials");
     } finally {
@@ -51,119 +68,123 @@ const Admin = () => {
     }
   };
 
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-    if (error) setError("");
-  };
-
   return (
-    <div className="min-h-screen relative">
-      <Silk
-        speed={5}
-        scale={1}
-        color="#7B7481"
-        noiseIntensity={1.5}
-        rotation={0}
-      />
-      <div className="flex items-center justify-center min-h-screen pt-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-md mx-4"
-        >
-          <div
-            className="rounded-[32px] overflow-hidden relative p-8"
-            style={glassStyle}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        {/* Production Mode Notice */}
+        {isProductionMode && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-6 p-4 bg-amber-500/20 border border-amber-500/30 rounded-lg"
           >
-            <div className="text-center mb-8">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-r from-indigo-400 to-violet-400 rounded-full flex items-center justify-center mb-4">
-                <Shield className="w-8 h-8 text-white" />
+            <div className="flex items-center gap-2 text-amber-300">
+              <AlertCircle className="w-5 h-5" />
+              <span className="text-sm font-medium">Production Mode</span>
+            </div>
+            <p className="text-amber-200 text-xs mt-2">
+              Backend services are not available. Using local storage fallback.
+            </p>
+          </motion.div>
+        )}
+
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 shadow-2xl">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-2">Admin Access</h1>
+            <p className="text-gray-300 text-sm">
+              {isProductionMode 
+                ? "Enter your credentials to access the dashboard"
+                : "Sign in to access the admin dashboard"
+              }
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Username
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Enter username"
+                  required
+                />
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-violet-400 text-transparent bg-clip-text">
-                Admin Login
-              </h1>
-              <p className="text-indigo-200 mt-2">
-                Access your admin dashboard
-              </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium mb-2 text-indigo-200"
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Enter password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                 >
-                  Username
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-indigo-400" />
-                  <input
-                    type="text"
-                    id="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg bg-white/5 border border-indigo-400/20 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/50 text-indigo-100"
-                    placeholder="Enter username"
-                    required
-                  />
-                </div>
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
+            </div>
 
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium mb-2 text-indigo-200"
-                >
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-indigo-400" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-12 py-3 rounded-lg bg-white/5 border border-indigo-400/20 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/50 text-indigo-100"
-                    placeholder="Enter password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-indigo-400 hover:text-indigo-300"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm"
-                >
-                  {error}
-                </motion.div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full px-6 py-3 rounded-full bg-gradient-to-r from-indigo-400 to-violet-400 text-white hover:opacity-90 transition-all duration-300 disabled:opacity-70"
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg"
               >
-                {isSubmitting ? "Processing..." : "Login"}
-              </button>
-            </form>
-          </div>
-        </motion.div>
-      </div>
+                <p className="text-red-300 text-sm">{error}</p>
+              </motion.div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
+
+          {isProductionMode && (
+            <div className="mt-6 p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+              <p className="text-blue-300 text-xs text-center">
+                <strong>Default credentials:</strong> admin / admin123
+              </p>
+            </div>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 };
