@@ -71,7 +71,9 @@ const AdminDashboard = () => {
       await deleteMessage(id, token);
 
       // Remove from local state
-      const updatedMessages = messages.filter((msg) => msg._id !== id && msg.id !== id);
+      const updatedMessages = messages.filter(
+        (msg) => msg._id !== id && msg.id !== id
+      );
       setMessages(updatedMessages);
     } catch (error) {
       console.error("Failed to delete message:", error);
@@ -85,7 +87,7 @@ const AdminDashboard = () => {
 
       // Update local state
       const updatedMessages = messages.map((msg) =>
-        (msg._id === id || msg.id === id) ? { ...msg, read: true } : msg
+        msg._id === id || msg.id === id ? { ...msg, read: true } : msg
       );
       setMessages(updatedMessages);
     } catch (error) {
@@ -152,7 +154,9 @@ const AdminDashboard = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Admin Dashboard
+            </h1>
             <p className="text-gray-300">
               Manage your portfolio contact messages
             </p>
@@ -180,7 +184,9 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <p className="text-gray-300 text-sm">Total Messages</p>
-                <p className="text-2xl font-bold text-white">{stats.totalMessages}</p>
+                <p className="text-2xl font-bold text-white">
+                  {stats.totalMessages}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -197,7 +203,9 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <p className="text-gray-300 text-sm">Unread</p>
-                <p className="text-2xl font-bold text-white">{stats.unreadMessages}</p>
+                <p className="text-2xl font-bold text-white">
+                  {stats.unreadMessages}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -214,7 +222,9 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <p className="text-gray-300 text-sm">Today</p>
-                <p className="text-2xl font-bold text-white">{stats.todayMessages}</p>
+                <p className="text-2xl font-bold text-white">
+                  {stats.todayMessages}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -223,9 +233,11 @@ const AdminDashboard = () => {
         {/* Messages List */}
         <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 overflow-hidden">
           <div className="p-6 border-b border-white/20">
-            <h2 className="text-xl font-semibold text-white">Contact Messages</h2>
+            <h2 className="text-xl font-semibold text-white">
+              Contact Messages
+            </h2>
           </div>
-          
+
           {messages.length === 0 ? (
             <div className="p-8 text-center">
               <Mail className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -250,15 +262,21 @@ const AdminDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-white">{message.name}</h3>
-                        <span className="text-sm text-gray-400">{message.email}</span>
+                        <h3 className="font-semibold text-white">
+                          {message.name}
+                        </h3>
+                        <span className="text-sm text-gray-400">
+                          {message.email}
+                        </span>
                         {!message.read && (
                           <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full">
                             New
                           </span>
                         )}
                       </div>
-                      <p className="text-gray-300 line-clamp-2">{message.message}</p>
+                      <p className="text-gray-300 line-clamp-2">
+                        {message.message}
+                      </p>
                       <div className="flex items-center gap-4 mt-3 text-sm text-gray-400">
                         <span className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
@@ -314,7 +332,9 @@ const AdminDashboard = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-start mb-6">
-                <h2 className="text-2xl font-bold text-white">Message Details</h2>
+                <h2 className="text-2xl font-bold text-white">
+                  Message Details
+                </h2>
                 <button
                   onClick={closeMessageModal}
                   className="text-gray-400 hover:text-white text-2xl"
@@ -322,29 +342,43 @@ const AdminDashboard = () => {
                   ×
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-300">From:</label>
-                  <p className="text-white font-semibold">{selectedMessage.name}</p>
+                  <label className="text-sm font-medium text-gray-300">
+                    From:
+                  </label>
+                  <p className="text-white font-semibold">
+                    {selectedMessage.name}
+                  </p>
                 </div>
-                
+
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Email:</label>
+                  <label className="text-sm font-medium text-gray-300">
+                    Email:
+                  </label>
                   <p className="text-white">{selectedMessage.email}</p>
                 </div>
-                
+
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Date:</label>
-                  <p className="text-white">{formatDate(selectedMessage.createdAt)}</p>
+                  <label className="text-sm font-medium text-gray-300">
+                    Date:
+                  </label>
+                  <p className="text-white">
+                    {formatDate(selectedMessage.createdAt)}
+                  </p>
                 </div>
-                
+
                 <div>
-                  <label className="text-sm font-medium text-gray-300">Message:</label>
-                  <p className="text-white whitespace-pre-wrap">{selectedMessage.message}</p>
+                  <label className="text-sm font-medium text-gray-300">
+                    Message:
+                  </label>
+                  <p className="text-white whitespace-pre-wrap">
+                    {selectedMessage.message}
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => {

@@ -21,7 +21,7 @@ const Admin = () => {
     if (token) {
       navigate("/admin/dashboard");
     }
-    
+
     // Check if we're in production mode (no backend)
     setIsProductionMode(!import.meta.env.DEV);
   }, [navigate]);
@@ -34,10 +34,13 @@ const Admin = () => {
     try {
       if (isProductionMode) {
         // Production mode: use localStorage fallback
-        const storedAdmin = localStorage.getItem('adminCredentials');
+        const storedAdmin = localStorage.getItem("adminCredentials");
         if (storedAdmin) {
           const { username, password } = JSON.parse(storedAdmin);
-          if (formData.username === username && formData.password === password) {
+          if (
+            formData.username === username &&
+            formData.password === password
+          ) {
             localStorage.setItem("adminToken", "production-token");
             navigate("/admin/dashboard");
             return;
@@ -45,7 +48,7 @@ const Admin = () => {
         }
         // First time setup in production
         if (formData.username === "admin" && formData.password === "admin123") {
-          localStorage.setItem('adminCredentials', JSON.stringify(formData));
+          localStorage.setItem("adminCredentials", JSON.stringify(formData));
           localStorage.setItem("adminToken", "production-token");
           navigate("/admin/dashboard");
           return;
@@ -100,10 +103,9 @@ const Admin = () => {
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">Admin Access</h1>
             <p className="text-gray-300 text-sm">
-              {isProductionMode 
+              {isProductionMode
                 ? "Enter your credentials to access the dashboard"
-                : "Sign in to access the admin dashboard"
-              }
+                : "Sign in to access the admin dashboard"}
             </p>
           </div>
 

@@ -20,6 +20,7 @@ dist-ssr
 .env.test.local
 .env.production.local
 config.env
+railway.env
 
 # Build outputs
 /build

@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "server": "node server.js",
     "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
-    "setup-admin": "node setup-admin.js"
+    "setup-admin": "node setup-admin.js",
+    "start:prod": "npm run build && npm run server",
+    "start": "npm run start:prod"
   },
   "dependencies": {
     "@react-three/fiber": "^8.15.19",
