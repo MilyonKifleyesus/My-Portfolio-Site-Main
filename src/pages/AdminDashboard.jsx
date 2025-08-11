@@ -34,7 +34,8 @@ const AdminDashboard = () => {
     }
 
     // Check if we're in production mode
-    setIsProductionMode(!import.meta.env.DEV);
+    const isVercel = window.location.hostname.includes('vercel.app');
+    setIsProductionMode(isVercel || !import.meta.env.DEV);
 
     // Load messages and stats
     loadMessages();
@@ -45,7 +46,7 @@ const AdminDashboard = () => {
     try {
       if (isProductionMode) {
         // Production mode: use localStorage fallback
-        const storedMessages = localStorage.getItem('contactMessages') || '[]';
+        const storedMessages = localStorage.getItem("contactMessages") || "[]";
         const messages = JSON.parse(storedMessages);
         setMessages(messages);
         return;
@@ -88,11 +89,11 @@ const AdminDashboard = () => {
     try {
       if (isProductionMode) {
         // Production mode: update localStorage
-        const storedMessages = localStorage.getItem('contactMessages') || '[]';
+        const storedMessages = localStorage.getItem("contactMessages") || "[]";
         let messages = JSON.parse(storedMessages);
-        messages = messages.filter(msg => (msg._id !== id && msg.id !== id));
-        localStorage.setItem('contactMessages', JSON.stringify(messages));
-        
+        messages = messages.filter((msg) => msg._id !== id && msg.id !== id);
+        localStorage.setItem("contactMessages", JSON.stringify(messages));
+
         // Update local state
         setMessages(messages);
         return;
@@ -116,13 +117,13 @@ const AdminDashboard = () => {
     try {
       if (isProductionMode) {
         // Production mode: update localStorage
-        const storedMessages = localStorage.getItem('contactMessages') || '[]';
+        const storedMessages = localStorage.getItem("contactMessages") || "[]";
         let messages = JSON.parse(storedMessages);
-        messages = messages.map(msg => 
-          (msg._id === id || msg.id === id) ? { ...msg, read: true } : msg
+        messages = messages.map((msg) =>
+          msg._id === id || msg.id === id ? { ...msg, read: true } : msg
         );
-        localStorage.setItem('contactMessages', JSON.stringify(messages));
-        
+        localStorage.setItem("contactMessages", JSON.stringify(messages));
+
         // Update local state
         setMessages(messages);
         return;

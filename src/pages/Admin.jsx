@@ -21,9 +21,9 @@ const Admin = () => {
     if (token) {
       navigate("/admin/dashboard");
     }
-
-    // Check if we're in production mode (no backend)
-    setIsProductionMode(!import.meta.env.DEV);
+    // Check if we're in production mode (Vercel deployment)
+    const isVercel = window.location.hostname.includes('vercel.app');
+    setIsProductionMode(isVercel || !import.meta.env.DEV);
   }, [navigate]);
 
   const handleSubmit = async (e) => {

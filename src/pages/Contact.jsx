@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Silk from "../components/Silk";
@@ -42,6 +42,13 @@ const Contact = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isProductionMode, setIsProductionMode] = useState(false);
+
+  // Check if we're in production mode (Vercel deployment)
+  useEffect(() => {
+    const isVercel = window.location.hostname.includes('vercel.app');
+    setIsProductionMode(isVercel || !import.meta.env.DEV);
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -97,7 +104,7 @@ const Contact = () => {
       console.error("Error submitting form:", error);
       
       // Production mode fallback: save to localStorage
-      if (error.message.includes('Backend services are not available')) {
+      if (isProductionMode || error.message.includes('Backend services are not available')) {
         try {
           const storedMessages = localStorage.getItem('contactMessages') || '[]';
           const messages = JSON.parse(storedMessages);
@@ -275,7 +282,7 @@ const Contact = () => {
                     )}
                   </AnimatePresence>
                 </button>
-                
+
                 {/* Submit Error Display */}
                 {errors.submit && (
                   <motion.p
