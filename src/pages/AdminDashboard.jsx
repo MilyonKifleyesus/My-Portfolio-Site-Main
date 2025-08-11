@@ -43,16 +43,35 @@ const AdminDashboard = () => {
 
   const loadMessages = async () => {
     try {
+      if (isProductionMode) {
+        // Production mode: use localStorage fallback
+        const storedMessages = localStorage.getItem('contactMessages') || '[]';
+        const messages = JSON.parse(storedMessages);
+        setMessages(messages);
+        return;
+      }
+
+      // Development mode: use real backend
       const token = localStorage.getItem("adminToken");
       const response = await getMessages(token);
       setMessages(response.messages);
     } catch (error) {
       console.error("Failed to load messages:", error);
+      if (isProductionMode) {
+        // Fallback to empty array in production
+        setMessages([]);
+      }
     }
   };
 
   const loadStats = async () => {
     try {
+      if (isProductionMode) {
+        // Production mode: stats calculated from local messages
+        return;
+      }
+
+      // Development mode: use real backend
       const token = localStorage.getItem("adminToken");
       await getDashboardStats(token);
     } catch (error) {
@@ -67,6 +86,19 @@ const AdminDashboard = () => {
 
   const handleDeleteMessage = async (id) => {
     try {
+      if (isProductionMode) {
+        // Production mode: update localStorage
+        const storedMessages = localStorage.getItem('contactMessages') || '[]';
+        let messages = JSON.parse(storedMessages);
+        messages = messages.filter(msg => (msg._id !== id && msg.id !== id));
+        localStorage.setItem('contactMessages', JSON.stringify(messages));
+        
+        // Update local state
+        setMessages(messages);
+        return;
+      }
+
+      // Development mode: use real backend
       const token = localStorage.getItem("adminToken");
       await deleteMessage(id, token);
 
@@ -82,6 +114,21 @@ const AdminDashboard = () => {
 
   const handleMarkAsRead = async (id) => {
     try {
+      if (isProductionMode) {
+        // Production mode: update localStorage
+        const storedMessages = localStorage.getItem('contactMessages') || '[]';
+        let messages = JSON.parse(storedMessages);
+        messages = messages.map(msg => 
+          (msg._id === id || msg.id === id) ? { ...msg, read: true } : msg
+        );
+        localStorage.setItem('contactMessages', JSON.stringify(messages));
+        
+        // Update local state
+        setMessages(messages);
+        return;
+      }
+
+      // Development mode: use real backend
       const token = localStorage.getItem("adminToken");
       await markMessageAsRead(id, token);
 

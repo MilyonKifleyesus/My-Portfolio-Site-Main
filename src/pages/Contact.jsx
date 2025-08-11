@@ -95,7 +95,36 @@ const Contact = () => {
       }, 1500);
     } catch (error) {
       console.error("Error submitting form:", error);
-      // You could add error handling here
+      
+      // Production mode fallback: save to localStorage
+      if (error.message.includes('Backend services are not available')) {
+        try {
+          const storedMessages = localStorage.getItem('contactMessages') || '[]';
+          const messages = JSON.parse(storedMessages);
+          const newMessage = {
+            id: Date.now().toString(),
+            name: formData.name,
+            email: formData.email,
+            message: formData.message,
+            read: false,
+            createdAt: new Date().toISOString()
+          };
+          messages.push(newMessage);
+          localStorage.setItem('contactMessages', JSON.stringify(messages));
+          
+          // Show success and redirect
+          setShowSuccess(true);
+          setTimeout(() => {
+            navigate("/");
+          }, 1500);
+          return;
+        } catch (localError) {
+          console.error("Failed to save to localStorage:", localError);
+        }
+      }
+      
+      // Show error message
+      setErrors({ submit: "Failed to send message. Please try again." });
     } finally {
       setIsSubmitting(false);
     }
@@ -246,6 +275,17 @@ const Contact = () => {
                     )}
                   </AnimatePresence>
                 </button>
+                
+                {/* Submit Error Display */}
+                {errors.submit && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-3 text-sm text-red-400 text-center"
+                  >
+                    {errors.submit}
+                  </motion.p>
+                )}
               </form>
             </motion.div>
 
